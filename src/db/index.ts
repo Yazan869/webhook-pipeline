@@ -11,9 +11,9 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is missing in .env");
 }
 
-const client = postgres(connectionString, { 
+const client = postgres(connectionString, {
   max: 1,
-  onnotice: (notice) => console.log("Postgres Notice:", notice) 
+  onnotice: (notice) => console.log("Postgres Notice:", notice),
 });
 
 export const db = drizzle(client, { schema });
