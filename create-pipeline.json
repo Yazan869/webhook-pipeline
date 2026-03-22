@@ -1,0 +1,5 @@
+{
+  "name": "My First Pipeline",
+  "actionType": "TRANSFORM_UPPERCASE",
+  "subscriberUrls": ["https://httpbin.org/post"]
+}

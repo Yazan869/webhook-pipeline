@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    /* الأساسيات */
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    
+    /* التوافق (هذا الجزء هو الذي سيحل مشكلة الخط الأحمر في الصورة) */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* الصرامة والجودة (مطلوب في المشاريع الاحترافية) */
+    "strict": true,
+    "skipLibCheck": true,
+    
+    /* إعدادات إضافية */
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
