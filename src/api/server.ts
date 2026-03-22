@@ -17,7 +17,7 @@ app.post("/api/pipelines", async (req: Request, res: Response) => {
       .insert(pipelines)
       .values({ name, actionType, sourcePath })
       .returning();
-    
+
     if (subscriberUrls && Array.isArray(subscriberUrls)) {
       for (const url of subscriberUrls) {
         await db
