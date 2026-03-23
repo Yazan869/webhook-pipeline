@@ -104,5 +104,5 @@ app.get("/api/stats", async (_req: Request, res: Response) => {
 });
 
 app.listen(PORT, () =>
-  console.log(`🚀 API Server running at http://localhost:${PORT}`)
+  console.log(`API Server running at http://localhost:${PORT}`)
 );

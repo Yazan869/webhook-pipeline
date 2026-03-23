@@ -44,8 +44,8 @@ export const jobs = pgTable("jobs", {
   })
     .default("pending")
     .notNull(),
-  retryCount: text("retry_count").default("0").notNull(), // Track attempts
-  lastError: text("last_error"), // Store what went wrong
+  retryCount: text("retry_count").default("0").notNull(),
+  lastError: text("last_error"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   processedAt: timestamp("processed_at"),
 });

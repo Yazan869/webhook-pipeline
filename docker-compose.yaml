@@ -25,7 +25,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # Use the npm script we tested locally
+    
     command: npm run start:api
 
   worker:
@@ -35,7 +35,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # Use the npm script we tested locally
+    
     command: npm run start:worker
 
 volumes:
