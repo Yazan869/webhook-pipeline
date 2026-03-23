@@ -3,9 +3,16 @@ import { db } from "../db/index.js";
 import { jobs, pipelines, subscribers } from "../db/schema.js";
 import { eq, sql } from "drizzle-orm";
 
+// 1. Define the Raw Database Result interface to satisfy the linter
+interface RawJob {
+  id: string;
+  pipeline_id: string;
+  payload: Record<string, unknown>;
+  retry_count: string;
+}
+
 async function processJobs() {
   try {
-    // ATOMIC LOCKING: Find a job AND mark it as processing in one step.
     const result = await db.execute(sql`
       UPDATE ${jobs}
       SET status = 'processing'
@@ -17,11 +24,20 @@ async function processJobs() {
         FOR UPDATE SKIP LOCKED
         LIMIT 1
       )
-      RETURNING *
+      RETURNING id, pipeline_id, payload, retry_count
     `);
 
-    const job = result[0] as typeof jobs.$inferSelect | undefined;
-    if (!job) return;
+    // 2. Cast the result to our interface instead of 'any'
+    const rawJob = result[0] as unknown as RawJob | undefined;
+    if (!rawJob) return;
+
+    // 3. Map to the camelCase object the rest of the code expects
+    const job = {
+      id: rawJob.id,
+      pipelineId: rawJob.pipeline_id,
+      payload: rawJob.payload,
+      retryCount: rawJob.retry_count,
+    };
 
     console.log(`🚀 Worker picked up job: ${job.id}`);
 
@@ -36,9 +52,8 @@ async function processJobs() {
       .from(subscribers)
       .where(eq(subscribers.pipelineId, job.pipelineId));
 
-    let payload = { ...(job.payload as Record<string, unknown>) };
+    let payload = { ...job.payload };
 
-    // Apply Transformation logic
     if (pipeline?.actionType === "TRANSFORM_UPPERCASE") {
       payload = JSON.parse(JSON.stringify(payload).toUpperCase());
     }
@@ -46,7 +61,6 @@ async function processJobs() {
       payload = { ...payload, processed_at: new Date().toISOString() };
     }
     if (pipeline?.actionType === "FILTER_SENSITIVE") {
-      // THE FIX: Filter keys without using 'any' or 'delete'
       const sensitiveKeys = ["password", "secret", "token"];
       payload = Object.fromEntries(
         Object.entries(payload).filter(
@@ -55,16 +69,17 @@ async function processJobs() {
       );
     }
 
-    // Delivery to all subscribers
     for (const s of subs) {
       console.log(`  -> Delivering to: ${s.targetUrl}`);
       await axios.post(s.targetUrl, payload, { timeout: 5000 });
     }
 
-    // Finalize job
     await db
       .update(jobs)
-      .set({ status: "completed", processedAt: new Date() })
+      .set({
+        status: "completed",
+        processedAt: new Date(),
+      })
       .where(eq(jobs.id, job.id));
 
     console.log(`✅ Job ${job.id} completed.`);
