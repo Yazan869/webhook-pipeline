@@ -39,7 +39,7 @@ async function processJobs() {
       retryCount: rawJob.retry_count,
     };
 
-    console.log(`🚀 Worker picked up job: ${job.id}`);
+    console.log(`Worker picked up job: ${job.id}`);
 
     const [pipeline] = await db
       .select()
@@ -82,12 +82,12 @@ async function processJobs() {
       })
       .where(eq(jobs.id, job.id));
 
-    console.log(`✅ Job ${job.id} completed.`);
+    console.log(`Job ${job.id} completed.`);
   } catch (err: unknown) {
     const error = err as Error;
     console.error("Worker error:", error.message);
   }
 }
 
-console.log("⚙️  Worker service started...");
+console.log("Worker service started...");
 setInterval(processJobs, 5000);
